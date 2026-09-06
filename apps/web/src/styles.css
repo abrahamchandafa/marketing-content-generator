@@ -1,12 +1,13 @@
 :root {
-  --bg: #f6f8fa;
-  --surface: #ffffff;
-  --border: #d8dee6;
-  --text: #1f2933;
-  --muted: #6b7280;
-  --accent: #2f6fb3;
-  --danger: #c0392b;
-  --ok: #1e8e3e;
+  --bg: #0f1115;
+  --surface: #1a1d23;
+  --border: #2b3038;
+  --text: #e6e9ef;
+  --muted: #9aa3af;
+  --accent: #4f8fdc;
+  --danger: #e5534b;
+  --ok: #3fb950;
+  color-scheme: dark;
   font-family:
     system-ui,
     -apple-system,
@@ -79,6 +80,8 @@ h1 {
   border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .field textarea {
@@ -138,9 +141,9 @@ button:disabled {
 }
 
 .banner-error {
-  background: #fdecea;
+  background: #2d1b1f;
   color: var(--danger);
-  border: 1px solid #f5c6c0;
+  border: 1px solid #5c2b2b;
   border-radius: 8px;
   padding: 12px 16px;
   margin-top: 12px;
