@@ -1,6 +1,7 @@
 # Marketing Content Generator
 
-Turns brand name, product name, description, and price into a shareable marketing poster. A deterministic SVG composition (procedural cartoon beach, or an AI-generated background) with a white text card is rasterized to PNG server-side with a bundled font — so text is always pixel-perfect.
+Turns brand name, product name, description, and price into a shareable marketing poster using
+either a deterministic `fixed` background, or an `AI-generated background that uses input info to produce a more stylistic option` with a white text card is rasterized to PNG server-side with a bundled font — so text is always pixel-perfect.
 
 **Stack:** React + TypeScript + Vite · Express + TypeScript · Zod (shared contract) · SQLite via `sql.js` (WASM, zero native compile) · SVG + `@resvg/resvg-js` · Vitest + Supertest + Testing Library. Runs fully offline without an API key.
 
@@ -35,11 +36,10 @@ Status flow: `pending → generating → composing → completed | failed`. The 
 
 ## Design Decisions
 
-1. **AI generates the asset, not the text.** Image models mangle text — a poster must never misspell the price. AI (palette + background image) is layered under a deterministically-rendered SVG text card.
-2. **SVG + `resvg`, not a screenshot pipeline.** No Puppeteer/Playwright; layout logic (`wrapText`, XML escaping, composition) is pure and unit-testable.
+1. **AI generates the asset, not the text.** 
+2. **SVG + `resvg`, not a screenshot pipeline.**
 3. **Shared Zod contract.** `packages/shared` is imported by both apps, so frontend and backend can't drift.
-4. **`sql.js` instead of native SQLite bindings.** No compiler required on any OS.
-5. **AI fails gracefully.** If OpenRouter errors, the service logs and falls back to `fixed` — a poster is always produced.
+4. **AI fails gracefully.** If OpenRouter errors, the service logs and falls back to `fixed` — a poster is always produced.
 
 ## Testing
 
@@ -47,9 +47,14 @@ Status flow: `pending → generating → composing → completed | failed`. The 
 
 ## Limitations / Future Work
 
-- Local filesystem storage and an in-process job queue — fine for one user, not multi-instance.
-- A restart mid-generation leaves a stuck status; a durable worker would fix it.
-- No auth; per-request background choice and history pagination are future niceties.
+- Local filesystem storage and an in-process job queue.
+- A restart mid-generation leaves a stuck status.
+- No authentication, no cloud storage etc.
+- Future work would involve:
+  - A more stylistic app
+  - better image history management (eg download all, delete all, clear history etc)
+  - multiple images generated per single request, each slightly different.
+
 
 ## AI Tools Used
 
