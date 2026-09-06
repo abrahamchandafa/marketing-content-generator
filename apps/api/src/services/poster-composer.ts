@@ -66,6 +66,7 @@ export function wrapText(text: string, maxChars: number): string[] {
 const DESCRIPTION_X = 540;
 const DESCRIPTION_START_Y = 940;
 const DESCRIPTION_LINE_HEIGHT = 42;
+const DESCRIPTION_MAX_CHARS = 30;
 
 function priceTag(price: string): string {
   const size = price.length <= 4 ? 120 : 96;
@@ -73,7 +74,7 @@ function priceTag(price: string): string {
 }
 
 function descriptionBlock(description: string): string {
-  const lines = wrapText(description, 42);
+  const lines = wrapText(description, DESCRIPTION_MAX_CHARS);
   return lines
     .map(
       (line, index) =>
