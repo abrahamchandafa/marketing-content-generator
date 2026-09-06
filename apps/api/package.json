@@ -1,0 +1,32 @@
+{
+  "name": "@mc/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@mc/shared": "*",
+    "@resvg/resvg-js": "^2.6.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "sql.js": "^1.14.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.4",
+    "@types/sql.js": "^1.4.11",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.1.0",
+    "tsx": "^4.19.2",
+    "vitest": "^3.0.7"
+  }
+}
