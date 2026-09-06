@@ -3,7 +3,7 @@ import { z } from "zod";
 export const MAX_BRAND_NAME = 60;
 export const MAX_PRODUCT_NAME = 60;
 export const MAX_DESCRIPTION = 220;
-export const MAX_PRICE = 9999.99;
+export const MAX_PRICE = 1_000_000_000_000_000;
 
 export const CreateGenerationInputSchema = z.object({
   brandName: z
@@ -24,7 +24,7 @@ export const CreateGenerationInputSchema = z.object({
   price: z
     .number({ invalid_type_error: "Price must be a number." })
     .positive("Price must be greater than zero.")
-    .max(MAX_PRICE, `Price must not exceed ${MAX_PRICE}.`)
+    .max(MAX_PRICE, "Price must not exceed 1000T.")
     .refine(
       (value) => Math.abs(Math.round(value * 100) - value * 100) < 1e-6,
       "Price can have at most two decimal places.",
@@ -70,6 +70,19 @@ export interface ListGenerationsResponse {
 
 export const GENERATION_HISTORY_LIMIT = 20;
 
+const PRICE_UNITS = [
+  { suffix: "T", value: 1e12 },
+  { suffix: "B", value: 1e9 },
+  { suffix: "M", value: 1e6 },
+  { suffix: "K", value: 1e3 },
+];
+
 export function formatPrice(price: number): string {
+  for (const unit of PRICE_UNITS) {
+    if (price >= unit.value) {
+      const scaled = Math.round((price / unit.value) * 100) / 100;
+      return `$${scaled}${unit.suffix}`;
+    }
+  }
   return `$${price.toFixed(2)}`;
 }

@@ -68,6 +68,74 @@ const DESCRIPTION_START_Y = 940;
 const DESCRIPTION_LINE_HEIGHT = 42;
 const DESCRIPTION_MAX_CHARS = 30;
 
+const BRAND_WRAP = {
+  maxChars: 20,
+  minFont: 26,
+  maxFont: 40,
+  charWidth: 0.64,
+  maxWidth: 520,
+  lineHeightRatio: 1.15,
+};
+
+const PRODUCT_WRAP = {
+  maxChars: 20,
+  minFont: 44,
+  maxFont: 72,
+  charWidth: 0.52,
+  maxWidth: 520,
+  lineHeightRatio: 1.15,
+};
+
+interface WrappedLayout {
+  lines: string[];
+  fontSize: number;
+  lineHeight: number;
+}
+
+function wrapLayout(
+  text: string,
+  opts: {
+    maxChars: number;
+    minFont: number;
+    maxFont: number;
+    charWidth: number;
+    maxWidth: number;
+    lineHeightRatio: number;
+  },
+): WrappedLayout {
+  const maxLines = 2;
+  let fontSize = opts.maxFont;
+  let lines = wrapText(text, opts.maxChars);
+
+  while (lines.length > maxLines && fontSize > opts.minFont) {
+    fontSize -= 6;
+    const budget = Math.max(Math.floor(opts.maxWidth / (opts.charWidth * fontSize)), 6);
+    lines = wrapText(text, budget);
+  }
+
+  const longest = Math.max(...lines.map((line) => line.length), 1);
+  if (longest * opts.charWidth * fontSize > opts.maxWidth && fontSize > opts.minFont) {
+    fontSize = Math.max(opts.minFont, Math.floor(opts.maxWidth / (longest * opts.charWidth)));
+  }
+
+  return { lines, fontSize, lineHeight: Math.round(fontSize * opts.lineHeightRatio) };
+}
+
+function wrappedTextBlock(
+  layout: WrappedLayout,
+  x: number,
+  centerY: number,
+  attributes: string,
+): string {
+  const startY = centerY - ((layout.lines.length - 1) * layout.lineHeight) / 2;
+  return layout.lines
+    .map(
+      (line, index) =>
+        `<text x="${x}" y="${startY + index * layout.lineHeight}" text-anchor="middle" ${attributes}>${escapeXml(line)}</text>`,
+    )
+    .join("");
+}
+
 function priceTag(price: string): string {
   const size = price.length <= 4 ? 120 : 96;
   return `<text x="540" y="1210" text-anchor="middle" font-family="'Outfit'" font-size="${size}" font-weight="800" fill="${escapeXml(DEFAULT_PALETTE.accent)}">${escapeXml(price)}</text>`;
@@ -129,8 +197,8 @@ export function buildPosterSvg(
   background: BackgroundSource = { kind: "fixed" },
 ): string {
   const { brandName, productName, description, price } = text;
-  const brandY = 660;
-  const productY = 820;
+  const brandLayout = wrapLayout(brandName.toUpperCase(), BRAND_WRAP);
+  const productLayout = wrapLayout(productName, PRODUCT_WRAP);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${POSTER_WIDTH}" height="${POSTER_HEIGHT}" viewBox="0 0 ${POSTER_WIDTH} ${POSTER_HEIGHT}">
   <defs>
@@ -153,8 +221,18 @@ export function buildPosterSvg(
   ${cardLayer(
     palette,
     `
-  <text x="540" y="${brandY}" text-anchor="middle" font-family="'Outfit'" font-size="40" font-weight="600" letter-spacing="2" fill="${escapeXml(palette.text)}">${escapeXml(brandName.toUpperCase())}</text>
-  <text x="540" y="${productY}" text-anchor="middle" font-family="'Outfit'" font-size="72" font-weight="800" fill="${escapeXml(palette.text)}">${escapeXml(productName)}</text>
+  ${wrappedTextBlock(
+    brandLayout,
+    540,
+    660,
+    `font-family="'Outfit'" font-size="${brandLayout.fontSize}" font-weight="600" letter-spacing="2" fill="${escapeXml(palette.text)}"`,
+  )}
+  ${wrappedTextBlock(
+    productLayout,
+    540,
+    820,
+    `font-family="'Outfit'" font-size="${productLayout.fontSize}" font-weight="800" fill="${escapeXml(palette.text)}"`,
+  )}
   <line x1="340" y1="880" x2="740" y2="880" stroke="${palette.accent}" stroke-width="4" />
   ${descriptionBlock(description)}
   ${priceTag(price)}`,

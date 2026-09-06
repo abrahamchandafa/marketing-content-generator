@@ -70,25 +70,42 @@ describe("CreateGenerationInputSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("accepts the maximum price", () => {
+    const result = CreateGenerationInputSchema.safeParse({ ...validInput, price: MAX_PRICE });
+    expect(result.success).toBe(true);
+  });
+
   it("rejects a price with more than two decimals", () => {
-    const result = CreateGenerationInputSchema.safeParse({ ...validInput, price: 1.234 });
+    const result = CreateGenerationInputSchema.safeParse({ ...validInput, price: 14.999 });
     expect(result.success).toBe(false);
+  });
+
+  it("normalizes a valid fractional price", () => {
+    const result = CreateGenerationInputSchema.safeParse({ ...validInput, price: 10.5 });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.price).toBe(10.5);
+    }
   });
 
   it("rejects a non-numeric price", () => {
     const result = CreateGenerationInputSchema.safeParse({ ...validInput, price: "14.99" });
     expect(result.success).toBe(false);
   });
-
-  it("rounds prices to two decimals", () => {
-    const parsed = CreateGenerationInputSchema.parse({ ...validInput, price: 14.999 });
-    expect(parsed.price).toBe(15.0);
-  });
 });
 
 describe("formatPrice", () => {
-  it("formats prices with two decimals", () => {
+  it("formats small prices with two decimals", () => {
     expect(formatPrice(14.99)).toBe("$14.99");
     expect(formatPrice(9)).toBe("$9.00");
+    expect(formatPrice(999)).toBe("$999.00");
+  });
+
+  it("uses K, M, B, T suffixes for large prices", () => {
+    expect(formatPrice(10_000)).toBe("$10K");
+    expect(formatPrice(1_500_000)).toBe("$1.5M");
+    expect(formatPrice(2_000_000_000)).toBe("$2B");
+    expect(formatPrice(5_500_000_000_000)).toBe("$5.5T");
+    expect(formatPrice(MAX_PRICE)).toBe("$1000T");
   });
 });

@@ -37,6 +37,18 @@ describe("escapeXml", () => {
   });
 });
 
+function textElements(svg: string) {
+  return [...svg.matchAll(/<text([^>]*)>([^<]*)<\/text>/g)].map((match) => {
+    const attrs = match[1];
+    return {
+      content: match[2],
+      fontSize: Number(/font-size="(\d+(?:\.\d+)?)"/.exec(attrs)?.[1] ?? 0),
+      y: Number(/y="(\d+(?:\.\d+)?)"/.exec(attrs)?.[1] ?? 0),
+      brand: /letter-spacing="2"/.test(attrs),
+    };
+  });
+}
+
 describe("buildPosterSvg", () => {
   const input = {
     brandName: "Sunshield",
@@ -69,6 +81,39 @@ describe("buildPosterSvg", () => {
     const palette = { ...DEFAULT_PALETTE, accent: "#123456" };
     const svg = buildPosterSvg(input, palette);
     expect(svg).toContain("#123456");
+  });
+
+  it("wraps a long brand name onto multiple lines", () => {
+    const svg = buildPosterSvg({ ...input, brandName: "Sunshield Premium Outdoor Company" });
+    const brandLines = textElements(svg).filter((el) => el.brand);
+    expect(brandLines.map((el) => el.content)).toEqual(["SUNSHIELD PREMIUM", "OUTDOOR COMPANY"]);
+    expect(brandLines.every((el) => el.fontSize === 40)).toBe(true);
+  });
+
+  it("wraps a long product name onto multiple lines and reduces font size", () => {
+    const svg = buildPosterSvg({
+      ...input,
+      productName: "Advanced Vitamin C Brightening Serum",
+    });
+    const productLines = textElements(svg).filter(
+      (el) => el.content === "Advanced Vitamin C" || el.content === "Brightening Serum",
+    );
+    expect(productLines.map((el) => el.content)).toEqual([
+      "Advanced Vitamin C",
+      "Brightening Serum",
+    ]);
+    expect(productLines.length).toBe(2);
+    expect(productLines.every((el) => el.fontSize < 72)).toBe(true);
+  });
+
+  it("emits one brand text per wrapped line with distinct baselines", () => {
+    const svg = buildPosterSvg({
+      ...input,
+      brandName: "International Swiss Chocolate",
+    });
+    const brandLines = textElements(svg).filter((el) => el.brand);
+    expect(brandLines.length).toBe(2);
+    expect(brandLines[0].y).not.toBe(brandLines[1].y);
   });
 
   it("builds the fixed beach scene by default", () => {

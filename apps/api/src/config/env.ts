@@ -21,5 +21,14 @@ export type Env = z.infer<typeof EnvSchema>;
 export type BackgroundMode = Env["BACKGROUND_MODE"];
 
 export function loadEnv(source: Record<string, string | undefined> = process.env): Env {
-  return EnvSchema.parse(source);
+  const env = EnvSchema.parse(source);
+  return {
+    ...env,
+    DATABASE_PATH: path.isAbsolute(env.DATABASE_PATH)
+      ? env.DATABASE_PATH
+      : path.resolve(REPO_ROOT, env.DATABASE_PATH),
+    STORAGE_DIR: path.isAbsolute(env.STORAGE_DIR)
+      ? env.STORAGE_DIR
+      : path.resolve(REPO_ROOT, env.STORAGE_DIR),
+  };
 }
