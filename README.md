@@ -1,4 +1,6 @@
 # Marketing Content Generator
+<img width="1560" height="1286" alt="cover" src="https://github.com/user-attachments/assets/3264ff33-5ee8-40ae-b954-c43e50c060c5" />
+
 
 Turns brand name, product name, description, and price into a shareable marketing poster using
 either a deterministic `fixed` background, or an `AI-generated background that uses input info to produce a more stylistic option` with a white text card is rasterized to PNG server-side.
