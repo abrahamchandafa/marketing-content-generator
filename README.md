@@ -1,7 +1,7 @@
 # Marketing Content Generator
 
 Turns brand name, product name, description, and price into a shareable marketing poster using
-either a deterministic `fixed` background, or an `AI-generated background that uses input info to produce a more stylistic option` with a white text card is rasterized to PNG server-side with a bundled font — so text is always pixel-perfect.
+either a deterministic `fixed` background, or an `AI-generated background that uses input info to produce a more stylistic option` with a white text card is rasterized to PNG server-side.
 
 **Stack:** React + TypeScript + Vite · Express + TypeScript · Zod (shared contract) · SQLite via `sql.js` (WASM, zero native compile) · SVG + `@resvg/resvg-js` · Vitest + Supertest + Testing Library. Runs fully offline without an API key.
 
@@ -51,15 +51,15 @@ Status flow: `pending → generating → composing → completed | failed`. The 
 - A restart mid-generation leaves a stuck status.
 - No authentication, no cloud storage etc.
 - Future work would involve:
-  - A more stylistic app
+  - A more stylistic visual appearance.
   - better image history management (eg download all, delete all, clear history etc)
   - multiple images generated per single request, each slightly different.
+  - employ more powerful image generation models to engage different design templates.
 
 
 ## AI Tools Used
 
-Architecture and code assisted by  (ideation), DeepSeek (suggestion), and opencode (Deeppseek V4 Flash 0731 for code implementation); 
-Poster font: [Outfit](https://fonts.google.com/specimen/Outfit) (OFL), bundled in `apps/api/src/assets/`.
+Architecture and code assisted by  (ideation), DeepSeek (suggestion), and opencode (Deeppseek V4 Flash 0731 for code implementation);
 
 ## License
 
